@@ -1,0 +1,1717 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.0</version>
+    <date>2021-10-25T15:29:11Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template App ActiveMQ Artemis</template>
+            <name>Template App ActiveMQ Artemis</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <discovery_rules>
+                <discovery_rule>
+                    <name>Broker Discovery</name>
+                    <type>JMX</type>
+                    <key>jmx.discovery[attributes,&quot;org.apache.activemq.artemis:broker=*&quot;]</key>
+                    <delay>15m</delay>
+                    <username>{$JMX_USERNAME}</username>
+                    <password>{$JMX_PASSWORD}</password>
+                    <lifetime>1d</lifetime>
+                    <description>In legacy ActiveMQ it was possible to discovery brokers by using something like &quot;type=Broker,brokerName=*&quot;. However, this is not possible in ActiveMQ Artemis.&#13;
+&#13;
+This discovery uses a workaround to get the name of all brokers: ALL attributes are discovery for all brokers, but a JS preprocessing only keeps the &quot;NodeID&quot; attribute and removes everything else.</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>Active</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,Active]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Server is active</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>AddressMemoryUsagePercentage</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,AddressMemoryUsagePercentage]</key>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Memory used by all the addresses on broker for in-memory messages</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{min(#2)}&gt;{$ARTEMIS_ADDRESS_MEMORY_USAGE_1}</expression>
+                                    <name>ActiveMQ AddressMemoryUsage is too high for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                    <priority>WARNING</priority>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>ActiveMQ AddressMemoryUsage is too high for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                            <expression>{Template App ActiveMQ Artemis:jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,AddressMemoryUsagePercentage].min({$ESCALATION_1_DELAY})}&gt;{$ARTEMIS_ADDRESS_MEMORY_USAGE_2}</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{min({$ESCALATION_1_DELAY})}&gt;{$ARTEMIS_ADDRESS_MEMORY_USAGE_2}</expression>
+                                    <name>ActiveMQ AddressMemoryUsage is too high for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                    <priority>HIGH</priority>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>ActiveMQ AddressMemoryUsage is too high for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                            <expression>{Template App ActiveMQ Artemis:jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,AddressMemoryUsagePercentage].min({$ESCALATION_2_DELAY})}&gt;{$ARTEMIS_ADDRESS_MEMORY_USAGE_3}</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{min({$ESCALATION_2_DELAY})}&gt;{$ARTEMIS_ADDRESS_MEMORY_USAGE_3}</expression>
+                                    <name>ActiveMQ AddressMemoryUsage is too high for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                    <priority>DISASTER</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>AddressMemoryUsage</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,AddressMemoryUsage]</key>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Memory used by all the addresses on broker for in-memory messages</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Backup</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,Backup]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Whether this server is a backup</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Clustered</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,Clustered]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Whether this server is clustered</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>ConnectionCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,ConnectionCount]</key>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Number of clients connected to this server</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>DiskStoreUsage</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,DiskStoreUsage]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Percentage of total disk store used</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{min(#2)}&gt;{$ARTEMIS_DISK_USAGE_1}</expression>
+                                    <name>ActiveMQ DiskStoreUsage is too high for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                    <priority>WARNING</priority>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>ActiveMQ DiskStoreUsage is too high for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                            <expression>{Template App ActiveMQ Artemis:jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,DiskStoreUsage].min({$ESCALATION_1_DELAY})}&gt;{$ARTEMIS_DISK_USAGE_2}</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{min({$ESCALATION_1_DELAY})}&gt;{$ARTEMIS_DISK_USAGE_2}</expression>
+                                    <name>ActiveMQ DiskStoreUsage is too high for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                    <priority>HIGH</priority>
+                                    <dependencies>
+                                        <dependency>
+                                            <name>ActiveMQ DiskStoreUsage is too high for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                            <expression>{Template App ActiveMQ Artemis:jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,DiskStoreUsage].min({$ESCALATION_2_DELAY})}&gt;{$ARTEMIS_DISK_USAGE_3}</expression>
+                                        </dependency>
+                                    </dependencies>
+                                </trigger_prototype>
+                                <trigger_prototype>
+                                    <expression>{min({$ESCALATION_2_DELAY})}&gt;{$ARTEMIS_DISK_USAGE_3}</expression>
+                                    <name>ActiveMQ DiskStoreUsage is too high for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                    <priority>DISASTER</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>NodeID</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,NodeID]</key>
+                            <delay>15m</delay>
+                            <history>1d</history>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Node ID of this server</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>ReplicaSync</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,ReplicaSync]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Whether the initial replication synchronization process with the backup server is complete</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last(#2)}&lt;1</expression>
+                                    <name>ActiveMQ ReplicaSync is not complete for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>SecurityEnabled</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,SecurityEnabled]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Whether security is enabled for this server</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Started</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,Started]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Whether this server is started</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>TotalConnectionCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,TotalConnectionCount]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Number of clients which have connected to this server since it was started</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>TotalConsumerCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,TotalConsumerCount]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Number of consumers consuming messages from all the queues on this server</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>TotalMessageCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,TotalMessageCount]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Number of messages in all queues on the server</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>TotalMessagesAcknowledged</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,TotalMessagesAcknowledged]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Number of messages acknowledged from all the queues on this server since it was started</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>TotalMessagesAdded</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,TotalMessagesAdded]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Number of messages sent to this server since it was started</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Uptime</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,UptimeMillis]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <units>uptime</units>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Uptime of this server</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.001</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{last()}&lt;300</expression>
+                                    <name>ActiveMQ has just been restarted for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Version</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;&quot;,Version]</key>
+                            <delay>15m</delay>
+                            <history>6h</history>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Server's version</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Broker {#JMXOBJ}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{diff()}&gt;0</expression>
+                                    <name>Version of ActiveMQ was changed for broker {#JMXOBJ} (on {HOST.NAME})</name>
+                                    <priority>INFO</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                    </item_prototypes>
+                    <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>// Get the discovered data from Zabbix.
+disco_data = JSON.parse(value);
+
+// Strip legacy &quot;data&quot; element if it was found.
+if (disco_data.data) {
+  disco_data = disco_data.data;
+}
+
+// Iterate over all discovered objects.
+for (var lvl1 in disco_data) {
+
+  // Safekeeping
+  if (disco_data.hasOwnProperty(lvl1)) {
+
+    // Iterate over all object attributes.
+    for (var lvl2 in disco_data[lvl1]) {
+
+      // Safekeeping
+      if (disco_data[lvl1].hasOwnProperty(lvl2)) {
+
+        // Check if we found the attribute that contains the broker name.
+        if (lvl2 == '{#JMXOBJ}') {
+
+          var objdata = disco_data[lvl1][lvl2];
+          // Cut the string to only contain the name of the broker.
+          var regex = /org.apache.activemq.artemis:broker=&quot;(.*)&quot;/;
+          var val2 = '';
+
+          if (objdata.match(regex)) {
+            val2 = objdata.replace(regex, &quot;$1&quot;);
+            // Overwrite the original value with the regex match.
+            disco_data[lvl1][lvl2] = val2;
+          } else {
+            val2 = disco_data[lvl1][lvl2];
+          }
+
+        }
+
+        // Remove every attribute except NodeID to get a unique list of brokers.
+        if (lvl2 == '{#JMXATTR}') {
+          var attrname = disco_data[lvl1][lvl2];
+
+          if (attrname == 'NodeID') {
+            continue;
+          } else {
+            // Not the attribute we want, delete it.
+            delete disco_data[lvl1];
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
+}
+
+// Return the (modified) discovered data to Zabbix.
+return (JSON.stringify(disco_data));
+</params>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
+                <discovery_rule>
+                    <name>Address Discovery</name>
+                    <type>JMX</type>
+                    <key>jmx.discovery[attributes,&quot;org.apache.activemq.artemis:broker=*,component=addresses,address=*&quot;]</key>
+                    <delay>15m</delay>
+                    <username>{$JMX_USERNAME}</username>
+                    <password>{$JMX_PASSWORD}</password>
+                    <lifetime>1d</lifetime>
+                    <description>This discovery uses two workarounds in JS preprocessing: 1. the broker name is extracted and stored in {#JMXOBJ}, 2. the address name is stored in {#JMXDESC}.</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>AddressSize</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;&quot;,AddressSize]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>the number of estimated bytes being used by all the queue(s) bound to this address; used to control paging and blocking</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Address {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Address</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;&quot;,Address]</key>
+                            <history>6h</history>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>managed address</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Address {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>CurrentDuplicateIdCacheSize</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;&quot;,CurrentDuplicateIdCacheSize]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>the size of the duplicate ID cache for this address</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Address {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>MessageCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;&quot;,MessageCount]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of messages currently in all queues bound to this address (includes scheduled, paged, and in-delivery messages)</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Address {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>NumberOfMessages</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;&quot;,NumberOfMessages]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>the sum of messages on queue(s), including messages in delivery</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Address {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>NumberOfPages</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;&quot;,NumberOfPages]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of pages used by this address</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Address {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Paging</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;&quot;,Paging]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>whether this address is paging</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Address {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Paused</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;&quot;,Paused]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>indicates if the queues bound to this address are paused</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Address {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{min(#2)}&gt;0</expression>
+                                    <name>ActiveMQ address is paused: {#JMXDESC} (on {HOST.NAME})</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>RoutedMessageCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;&quot;,RoutedMessageCount]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of messages routed to one or more bindings</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Address {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>UnRoutedMessageCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;&quot;,UnRoutedMessageCount]</key>
+                            <delay>3m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of messages not routed to any bindings</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Address {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                    </item_prototypes>
+                    <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>// Get the discovered data from Zabbix.
+disco_data = JSON.parse(value);
+
+// Strip legacy &quot;data&quot; element if it was found.
+if (disco_data.data) {
+  disco_data = disco_data.data;
+}
+
+// Iterate over all discovered objects.
+for (var lvl1 in disco_data) {
+
+  // Safekeeping
+  if (disco_data.hasOwnProperty(lvl1)) {
+
+    // Iterate over all object attributes.
+    for (var lvl2 in disco_data[lvl1]) {
+
+      // Safekeeping
+      if (disco_data[lvl1].hasOwnProperty(lvl2)) {
+
+        // Check if we found the attribute that contains the full resource name.
+        if (lvl2 == '{#JMXOBJ}') {
+
+          var objdata = disco_data[lvl1][lvl2];
+          // Cut the string to only contain the name of the broker and the address.
+          var regex = /org.apache.activemq.artemis:broker=&quot;(.*)&quot;,component=addresses,address=&quot;(.*)&quot;/;
+          var val2 = '';
+          var val3 = '';
+
+          if (objdata.match(regex)) {
+            // broker name
+            val2 = objdata.replace(regex, &quot;$1&quot;);
+            // address name
+            val3 = objdata.replace(regex, &quot;$2&quot;);
+            // Overwrite the original values
+            disco_data[lvl1][lvl2] = val2;
+            disco_data[lvl1]['{#JMXDESC}'] = val3;
+          } else {
+            val2 = disco_data[lvl1][lvl2];
+          }
+
+        }
+
+        // Remove every attribute except Address to get a unique list of addresses.
+        if (lvl2 == '{#JMXATTR}') {
+          var attrname = disco_data[lvl1][lvl2];
+
+          if (attrname == 'Address') {
+            continue;
+          } else {
+            // Not the attribute we want, delete it.
+            delete disco_data[lvl1];
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
+}
+
+// Return the (modified) discovered data to Zabbix.
+return (JSON.stringify(disco_data));
+</params>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
+                <discovery_rule>
+                    <name>Queue Discovery</name>
+                    <type>JMX</type>
+                    <key>jmx.discovery[attributes,&quot;org.apache.activemq.artemis:broker=*,component=addresses,address=*,subcomponent=queues,routing-type=*,queue=*&quot;]</key>
+                    <delay>15m</delay>
+                    <username>{$JMX_USERNAME}</username>
+                    <password>{$JMX_PASSWORD}</password>
+                    <lifetime>1d</lifetime>
+                    <description>This discovery uses three workarounds in JS preprocessing: 1. the broker name is extracted and stored in {#JMXOBJ}, 2. the address name is stored in {#JMXDESC} and 3. the queue name (and path) is stored in {#JMXTYPE}.</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>AcknowledgeAttempts</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,AcknowledgeAttempts]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of messages acknowledged attempts from this queue since it was created</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>ConfigurationManaged</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,ConfigurationManaged]</key>
+                            <delay>15m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>is this queue managed by configuration (broker.xml)</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>ConsumerCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,ConsumerCount]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of consumers consuming messages from this queue</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>DeliveringCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,DeliveringCount]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of messages that this queue is currently delivering to its consumers</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>DeliveringSize</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,DeliveringSize]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>persistent size of messages that this queue is currently delivering to its consumers</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>DurableDeliveringCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,DurableDeliveringCount]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of durable messages that this queue is currently delivering to its consumers</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>DurableDeliveringSize</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,DurableDeliveringSize]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>persistent size of durable scheduled messages in this queue</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>DurableMessageCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,DurableMessageCount]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>DurablePersistentSize</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,DurablePersistentSize]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>persistent size of durable messages currently in this queue (includes scheduled, paged, and in-delivery messages)</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>DurableScheduledCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,DurableScheduledCount]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of durable scheduled messages in this queue</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>DurableScheduledSize</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,DurableScheduledSize]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>persistent size of durable scheduled messages in this queue</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Durable</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,Durable]</key>
+                            <delay>15m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>whether this queue is durable</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Enabled</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,Enabled]</key>
+                            <delay>15m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>if the queue is enabled, default it is enabled, when disabled messages will not be routed to the queue</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Exclusive</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,Exclusive]</key>
+                            <delay>15m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>If the queue should route exclusively to one consumer</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>FirstMessageAge</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,FirstMessageAge]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <units>s</units>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>age of the first message in seconds</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>MULTIPLIER</type>
+                                    <params>0.001</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>GroupCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,GroupCount]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>Get the current number of active groups</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>ID</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,ID]</key>
+                            <delay>15m</delay>
+                            <history>6h</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>ID of this queue</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>LastValue</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,LastValue]</key>
+                            <delay>15m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>is this queue a last value queue</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>MessageCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,MessageCount]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of messages currently in this queue (includes scheduled, paged, and in-delivery messages)</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>MessagesAcknowledged</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,MessagesAcknowledged]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of messages acknowledged from this queue since it was created</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>MessagesAdded</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,MessagesAdded]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of messages added to this queue since it was created</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>MessagesExpired</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,MessagesExpired]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of messages expired from this queue since it was created</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>MessagesKilled</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,MessagesKilled]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of messages removed from this queue since it was created due to exceeding the max delivery attempts</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Name</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,Name]</key>
+                            <delay>15m</delay>
+                            <history>6h</history>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>name of this queue</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Paused</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,Paused]</key>
+                            <delay>15m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>whether the queue is paused</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                            <trigger_prototypes>
+                                <trigger_prototype>
+                                    <expression>{min(#2)}&gt;0</expression>
+                                    <name>ActiveMQ queue is paused: {#JMXTYPE} (on {HOST.NAME})</name>
+                                    <priority>WARNING</priority>
+                                </trigger_prototype>
+                            </trigger_prototypes>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>PersistentSize</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,PersistentSize]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>persistent size of all messages (including durable and non-durable) currently in this queue (includes scheduled, paged, and in-delivery messages)</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>ProducedRate</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,ProducedRate]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <value_type>FLOAT</value_type>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>rate of writing messages to the queue currently (based on default window function)</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>PurgeOnNoConsumers</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,PurgeOnNoConsumers]</key>
+                            <delay>15m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>purge this queue when the last consumer disconnects</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>ScheduledCount</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,ScheduledCount]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>number of scheduled messages in this queue</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>ScheduledSize</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,ScheduledSize]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>persistent size of scheduled messages in this queue</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Temporary</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=addresses,address=\&quot;{#JMXDESC}\&quot;,subcomponent=queues,{#JMXTYPE}&quot;,Temporary]</key>
+                            <delay>15m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>whether this queue is temporary</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Queue {#JMXTYPE}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                    </item_prototypes>
+                    <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>// Get the discovered data from Zabbix.
+disco_data = JSON.parse(value);
+
+// Strip legacy &quot;data&quot; element if it was found.
+if (disco_data.data) {
+  disco_data = disco_data.data;
+}
+
+// Iterate over all discovered objects.
+for (var lvl1 in disco_data) {
+
+  // Safekeeping
+  if (disco_data.hasOwnProperty(lvl1)) {
+
+    // Iterate over all object attributes.
+    for (var lvl2 in disco_data[lvl1]) {
+
+      // Safekeeping
+      if (disco_data[lvl1].hasOwnProperty(lvl2)) {
+
+        // Check if we found the attribute that contains the full resource name.
+        if (lvl2 == '{#JMXOBJ}') {
+
+          var objdata = disco_data[lvl1][lvl2];
+          // Cut the string to only contain the name of the broker, address and queue.
+          var regex = /org.apache.activemq.artemis:broker=&quot;(.*)&quot;,component=addresses,address=&quot;(.*)&quot;,subcomponent=queues,(.*)/;
+          var val2 = '';
+          var val3 = '';
+          var val4 = '';
+
+          if (objdata.match(regex)) {
+            // broker name
+            val2 = objdata.replace(regex, &quot;$1&quot;);
+            // address name
+            val3 = objdata.replace(regex, &quot;$2&quot;);
+            // queue name and path
+            val4 = objdata.replace(regex, &quot;$3&quot;);
+            // Overwrite the original values
+            disco_data[lvl1][lvl2] = val2;
+            disco_data[lvl1]['{#JMXDESC}'] = val3;
+            disco_data[lvl1]['{#JMXTYPE}'] = val4;
+          } else {
+            val2 = disco_data[lvl1][lvl2];
+          }
+
+        }
+
+        // Remove every attribute except Name to get a unique list of queues.
+        if (lvl2 == '{#JMXATTR}') {
+          var attrname = disco_data[lvl1][lvl2];
+
+          if (attrname == 'Name') {
+            continue;
+          } else {
+            // Not the attribute we want, delete it.
+            delete disco_data[lvl1];
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
+}
+
+// Return the (modified) discovered data to Zabbix.
+return (JSON.stringify(disco_data));
+</params>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
+                <discovery_rule>
+                    <name>Cluster Discovery</name>
+                    <type>JMX</type>
+                    <key>jmx.discovery[attributes,&quot;org.apache.activemq.artemis:broker=*,component=cluster-connections,name=*&quot;]</key>
+                    <delay>15m</delay>
+                    <username>{$JMX_USERNAME}</username>
+                    <password>{$JMX_PASSWORD}</password>
+                    <lifetime>1d</lifetime>
+                    <description>This discovery uses two workarounds in JS preprocessing: 1. the broker name is extracted and stored in {#JMXOBJ}, 2. the cluster name is stored in {#JMXDESC}.</description>
+                    <item_prototypes>
+                        <item_prototype>
+                            <name>MessagesAcknowledged</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=cluster-connections,name=\&quot;{#JMXDESC}\&quot;&quot;,MessagesAcknowledged]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>The messagesAcknowledged counter is the number of messages actually received by a remote broker for all bridges in this cluster connection</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Cluster {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>MessagesPendingAcknowledgement</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=cluster-connections,name=\&quot;{#JMXDESC}\&quot;&quot;,MessagesPendingAcknowledgement]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>The messagesPendingAcknowledgement counter is incremented when any bridge in the cluster connection has forwarded a message and is waiting acknowledgement from the other broker. (aggregate over all bridges)</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Cluster {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>NodeID</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=cluster-connections,name=\&quot;{#JMXDESC}\&quot;&quot;,NodeID]</key>
+                            <delay>15m</delay>
+                            <history>6h</history>
+                            <trends>0</trends>
+                            <value_type>TEXT</value_type>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Cluster {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                        <item_prototype>
+                            <name>Started</name>
+                            <type>JMX</type>
+                            <key>jmx[&quot;org.apache.activemq.artemis:broker=\&quot;{#JMXOBJ}\&quot;,component=cluster-connections,name=\&quot;{#JMXDESC}\&quot;&quot;,Started]</key>
+                            <delay>5m</delay>
+                            <history>7d</history>
+                            <username>{$JMX_USERNAME}</username>
+                            <password>{$JMX_PASSWORD}</password>
+                            <description>whether this component is started</description>
+                            <application_prototypes>
+                                <application_prototype>
+                                    <name>ActiveMQ Artemis - Cluster {#JMXDESC}</name>
+                                </application_prototype>
+                            </application_prototypes>
+                            <preprocessing>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(.*)
+\1:false=0:true=1</params>
+                                </step>
+                                <step>
+                                    <type>REGEX</type>
+                                    <params>(false|true)(?=.*:\1=(\d))
+\2</params>
+                                </step>
+                            </preprocessing>
+                            <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                        </item_prototype>
+                    </item_prototypes>
+                    <jmx_endpoint>service:jmx:rmi:///jndi/rmi://{HOST.CONN}:{HOST.PORT}/jmxrmi</jmx_endpoint>
+                    <preprocessing>
+                        <step>
+                            <type>JAVASCRIPT</type>
+                            <params>// Get the discovered data from Zabbix.
+disco_data = JSON.parse(value);
+
+// Strip legacy &quot;data&quot; element if it was found.
+if (disco_data.data) {
+  disco_data = disco_data.data;
+}
+
+// Iterate over all discovered objects.
+for (var lvl1 in disco_data) {
+
+  // Safekeeping
+  if (disco_data.hasOwnProperty(lvl1)) {
+
+    // Iterate over all object attributes.
+    for (var lvl2 in disco_data[lvl1]) {
+
+      // Safekeeping
+      if (disco_data[lvl1].hasOwnProperty(lvl2)) {
+
+        // Check if we found the attribute that contains the full resource name.
+        if (lvl2 == '{#JMXOBJ}') {
+
+          var objdata = disco_data[lvl1][lvl2];
+          // Cut the string to only contain the name of the broker and the cluster name.
+          var regex = /org.apache.activemq.artemis:broker=&quot;(.*)&quot;,component=cluster-connections,name=&quot;(.*)&quot;/;
+          var val2 = '';
+          var val3 = '';
+
+          if (objdata.match(regex)) {
+            // broker name
+            val2 = objdata.replace(regex, &quot;$1&quot;);
+            // cluster name
+            val3 = objdata.replace(regex, &quot;$2&quot;);
+            // Overwrite the original values
+            disco_data[lvl1][lvl2] = val2;
+            disco_data[lvl1]['{#JMXDESC}'] = val3;
+          } else {
+            val2 = disco_data[lvl1][lvl2];
+          }
+
+        }
+
+        // Remove every attribute except NodeID to get a unique list of clusters.
+        if (lvl2 == '{#JMXATTR}') {
+          var attrname = disco_data[lvl1][lvl2];
+
+          if (attrname == 'NodeID') {
+            continue;
+          } else {
+            // Not the attribute we want, delete it.
+            delete disco_data[lvl1];
+          }
+
+        }
+
+      }
+
+    }
+
+  }
+
+}
+
+// Return the (modified) discovered data to Zabbix.
+return (JSON.stringify(disco_data));
+</params>
+                        </step>
+                    </preprocessing>
+                </discovery_rule>
+            </discovery_rules>
+            <macros>
+                <macro>
+                    <macro>{$ARTEMIS_ADDRESS_MEMORY_USAGE_1}</macro>
+                    <value>75</value>
+                </macro>
+                <macro>
+                    <macro>{$ARTEMIS_ADDRESS_MEMORY_USAGE_2}</macro>
+                    <value>85</value>
+                </macro>
+                <macro>
+                    <macro>{$ARTEMIS_ADDRESS_MEMORY_USAGE_3}</macro>
+                    <value>95</value>
+                </macro>
+                <macro>
+                    <macro>{$ARTEMIS_DISK_USAGE_1}</macro>
+                    <value>75</value>
+                </macro>
+                <macro>
+                    <macro>{$ARTEMIS_DISK_USAGE_2}</macro>
+                    <value>85</value>
+                </macro>
+                <macro>
+                    <macro>{$ARTEMIS_DISK_USAGE_3}</macro>
+                    <value>95</value>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+</zabbix_export>

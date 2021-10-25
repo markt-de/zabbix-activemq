@@ -1,0 +1,7 @@
+.git/
+.*.sw[op]
+*.iml
+/tmp/
+.DS_Store
+.project
+.envrc
